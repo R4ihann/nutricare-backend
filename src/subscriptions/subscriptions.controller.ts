@@ -49,7 +49,7 @@ findAll(
 ) {
   const pageNum = page ? parseInt(page, 10) : 1;
   const limitNum = limit ? parseInt(limit, 10) : 10;
-  return this.subscriptionsService.findAll(req.user.id, req.user.role, pageNum, limitNum);
+  return this.subscriptionsService.findAll(req.user.id, req.user.role);
 }
 
   @Get(':id')

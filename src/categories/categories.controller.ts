@@ -45,7 +45,7 @@ findAll(
 ) {
   const pageNum = page ? parseInt(page, 10) : 1;
   const limitNum = limit ? parseInt(limit, 10) : 10;
-  return this.categoriesService.findAll(pageNum, limitNum);
+  return this.categoriesService.findAll();
 }
 
   @Get(':id')
