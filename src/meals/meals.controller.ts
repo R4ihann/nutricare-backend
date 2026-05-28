@@ -36,17 +36,24 @@ export class MealsController {
     return this.mealsService.create(dto);
   }
 
-@Get()
-@ApiOperation({ summary: 'Get all meals (paginated)' })
-@ApiResponse({ status: 200, description: 'Paginated list of meals.' })
-findAll(
-  @Query('page') page?: string,
-  @Query('limit') limit?: string,
-) {
-  const pageNum = page ? parseInt(page, 10) : 1;
-  const limitNum = limit ? parseInt(limit, 10) : 10;
-  return this.mealsService.findAll(pageNum, limitNum);
-}
+  @Get('all')
+  @ApiOperation({ summary: 'Get ALL meals (no pagination)' })
+  @ApiResponse({ status: 200, description: 'Complete list of all meals.' })
+  findAllNoPagination() {
+    return this.mealsService.findAllNoPagination();
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get meals (paginated)' })
+  @ApiResponse({ status: 200, description: 'Paginated list of meals.' })
+  findAllPaginated(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    return this.mealsService.findAllPaginated(pageNum, limitNum);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single meal by ID' })

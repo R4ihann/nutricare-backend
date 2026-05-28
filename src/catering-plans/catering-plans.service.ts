@@ -14,26 +14,55 @@ export class CateringPlansService {
     });
   }
 
-  async findAll(page: number = 1, limit: number = 10, search?: string, categoryId?: number) {
-  const skip = (page - 1) * limit;
-  
-  const where: any = { isActive: true };
-  
-  if (search) {
-    where.name = { contains: search, mode: 'insensitive' };
-  }
-  
-  if (categoryId) {
-    where.categoryId = categoryId;
+  async findAllNoPagination(search?: string, categoryId?: number) {
+    const where: any = { isActive: true };
+    
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    return this.prisma.cateringPlan.findMany({
+      where,
+      include: { category: true, meals: true },
+    });
   }
 
-  return this.prisma.cateringPlan.findMany({
-    where,
-    include: { category: true, meals: true },
-    skip,
-    take: limit,
-  });
-}
+  async findAllPaginated(page: number = 1, limit: number = 10, search?: string, categoryId?: number) {
+    const skip = (page - 1) * limit;
+    const where: any = { isActive: true };
+    
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.cateringPlan.findMany({
+        where,
+        include: { category: true, meals: true },
+        skip,
+        take: limit,
+      }),
+      this.prisma.cateringPlan.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
 
   async findOne(id: number) {
     const plan = await this.prisma.cateringPlan.findUnique({

@@ -37,7 +37,7 @@ export class RegisterDto {
   @IsOptional()
   @IsEnum(Role)
   role?: Role;
-  address: string;
+  address!: string;
 }
 
 export class LoginDto {
