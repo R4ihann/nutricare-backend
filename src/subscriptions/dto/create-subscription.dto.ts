@@ -1,4 +1,4 @@
-import { IsInt, IsISO8601 } from 'class-validator';
+import { IsInt, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSubscriptionDto {
@@ -6,7 +6,8 @@ export class CreateSubscriptionDto {
   @IsInt()
   cateringPlanId!: number;
 
-  @ApiProperty({ example: '2026-06-01', description: 'Start date (YYYY-MM-DD)' })
-  @IsISO8601()
-  startDate!: string;
+  @ApiProperty({ example: 7, description: 'Subscription duration: 7 (1 week), 14 (2 weeks), or 30 (1 month) days' })
+  @IsInt()
+  @IsIn([7, 14, 30])
+  durationDays!: number;
 }

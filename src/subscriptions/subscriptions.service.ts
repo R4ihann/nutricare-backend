@@ -5,41 +5,42 @@ import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(dto: CreateSubscriptionDto, userId: number) {
-    // 1. Find the plan to get price and duration
-    const plan = await this.prisma.cateringPlan.findUnique({
-      where: { id: dto.cateringPlanId },
-    });
-    if (!plan) throw new NotFoundException('Catering plan not found');
+  const plan = await this.prisma.cateringPlan.findUnique({
+    where: { id: dto.cateringPlanId },
+  });
+  if (!plan) throw new NotFoundException('Catering plan not found');
 
-    // 2. Calculate endDate
-    const startDate = new Date(dto.startDate);
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + plan.duration);
+  const startDate = new Date();
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + dto.durationDays);
 
-    // 3. Create subscription with auto-calculated fields
-    return this.prisma.subscription.create({
-      data: {
-        userId,
-        cateringPlanId: dto.cateringPlanId,
-        startDate,
-        endDate,
-        totalPrice: plan.price,
-        orderStatus: 'PENDING',
-        paymentStatus: 'UNPAID',
-      },
-      include: { user: true, cateringPlan: true },
-    });
-  }
-async findAll(userId: number, userRole: string) {
-  const where = userRole === 'ADMIN' ? {} : { userId };
-  return this.prisma.subscription.findMany({
-    where,
+  const rawPrice = (dto.durationDays / 7) * plan.price;
+  const totalPrice = Math.ceil(rawPrice / 1000) * 1000; // Round up to nearest thousand
+
+  return this.prisma.subscription.create({
+    data: {
+      userId,
+      cateringPlanId: dto.cateringPlanId,
+      startDate,
+      endDate,
+      totalPrice,
+      orderStatus: 'PENDING',
+      paymentStatus: 'UNPAID',
+    },
     include: { user: true, cateringPlan: true },
   });
 }
+
+  async findAll(userId: number, userRole: string) {
+    const where = userRole === 'ADMIN' ? {} : { userId };
+    return this.prisma.subscription.findMany({
+      where,
+      include: { user: true, cateringPlan: true },
+    });
+  }
 
   async findOne(id: number, userId: number, userRole: string) {
     const subscription = await this.prisma.subscription.findUnique({
@@ -47,7 +48,7 @@ async findAll(userId: number, userRole: string) {
       include: { user: true, cateringPlan: true },
     });
     if (!subscription) throw new NotFoundException(`Subscription #${id} not found`);
-    
+
     // Users can only see their own
     if (userRole !== 'ADMIN' && subscription.userId !== userId) {
       throw new ForbiddenException('You can only view your own subscriptions');
@@ -57,7 +58,7 @@ async findAll(userId: number, userRole: string) {
 
   async update(id: number, dto: UpdateSubscriptionDto, userId: number, userRole: string) {
     const subscription = await this.findOne(id, userId, userRole);
-    
+
     // Only admin can update status fields, users can't update their own subscriptions
     if (userRole !== 'ADMIN') {
       throw new ForbiddenException('Only admins can update subscriptions');
@@ -72,7 +73,7 @@ async findAll(userId: number, userRole: string) {
 
   async remove(id: number, userId: number, userRole: string) {
     await this.findOne(id, userId, userRole);
-    
+
     if (userRole !== 'ADMIN') {
       throw new ForbiddenException('Only admins can delete subscriptions');
     }
