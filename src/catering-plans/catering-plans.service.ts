@@ -14,20 +14,9 @@ export class CateringPlansService {
     });
   }
 
-  async findAll(search?: string, categoryId?: number) {
-  const where: any = { isActive: true };
-  
-  if (search) {
-    where.name = { contains: search, mode: 'insensitive' };
-  }
-  
-  if (categoryId) {
-    where.categoryId = categoryId;
-  }
-
-  return this.prisma.cateringPlan.findMany({
-    where,
-    include: { category: true, meals: true },
+async findAll() {
+  return this.prisma.meal.findMany({
+    include: { cateringPlan: true },
   });
 }
 

@@ -22,6 +22,7 @@ import { Role } from '@prisma/client';
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
+  cateringPlansService: any;
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
@@ -36,15 +37,10 @@ export class CategoriesController {
     return this.categoriesService.create(dto);
   }
 
-  @Get()
-@ApiOperation({ summary: 'Get all categories (paginated)' })
-@ApiResponse({ status: 200, description: 'Paginated list of categories.' })
-findAll(
-  @Query('page') page?: string,
-  @Query('limit') limit?: string,
-) {
-  const pageNum = page ? parseInt(page, 10) : 1;
-  const limitNum = limit ? parseInt(limit, 10) : 10;
+@Get()
+@ApiOperation({ summary: 'Get all categories' })
+@ApiResponse({ status: 200, description: 'List of all categories.' })
+findAll() {
   return this.categoriesService.findAll();
 }
 

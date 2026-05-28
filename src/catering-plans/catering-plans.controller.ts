@@ -22,7 +22,8 @@ import { Role } from '@prisma/client';
 @ApiTags('Catering Plans')
 @Controller('catering-plans')
 export class CateringPlansController {
-  constructor(private readonly cateringPlansService: CateringPlansService) {}
+  mealsService: any;
+  constructor(private readonly cateringPlansService: CateringPlansService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -35,17 +36,12 @@ export class CateringPlansController {
   create(@Body() dto: CreateCateringPlanDto) {
     return this.cateringPlansService.create(dto);
   }
-
-@Get()
-@ApiOperation({ summary: 'Get all active catering plans (searchable, filterable)' })
-@ApiResponse({ status: 200, description: 'List of all active catering plans.' })
-findAll(
-  @Query('search') search?: string,
-  @Query('categoryId') categoryId?: string,
-) {
-  const categoryIdNum = categoryId ? parseInt(categoryId, 10) : undefined;
-  return this.cateringPlansService.findAll(search, categoryIdNum);
-}
+  @Get()
+  @ApiOperation({ summary: 'Get all meals' })
+  @ApiResponse({ status: 200, description: 'List of all meals.' })
+  findAll() {
+    return this.mealsService.findAll();
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single catering plan by ID' })
