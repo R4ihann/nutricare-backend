@@ -13,30 +13,28 @@ export class AuthService {
   ) { }
 
   async register(dto: RegisterDto) {
-    // 1. Check if user already exists
-    const userExists = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (userExists) {
-      throw new BadRequestException('Email already registered');
-    }
-
-    // 2. Hash the password securely
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    // 3. Save to Neon database
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        password: hashedPassword,
-        name: dto.name ?? '',
-        address: dto.address ?? '',
-        role: dto.role ?? Role.USER,  // <-- add this line
-      },
-    });
-
-    // 4. Return user profile without the sensitive password field
-    const { password, ...result } = user;
-    return result;
+  const userExists = await this.prisma.user.findUnique({ where: { email: dto.email } });
+  if (userExists) {
+    throw new BadRequestException('Email already registered');
   }
+
+  const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+  const user = await this.prisma.user.create({
+    data: {
+      email: dto.email,
+      password: hashedPassword,
+      name: dto.name ?? '',
+      cityId: dto.cityId,
+      fullAddress: dto.fullAddress ?? '',
+      addressDetail: dto.addressDetail ?? '',
+      role: dto.role ?? Role.USER,
+    },
+  });
+
+  const { password, ...result } = user;
+  return result;
+}
 
   async login(dto: LoginDto) {
     // 1. Find user by email
