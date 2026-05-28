@@ -22,7 +22,6 @@ import { Role } from '@prisma/client';
 @ApiTags('Catering Plans')
 @Controller('catering-plans')
 export class CateringPlansController {
-  mealsService: any;
   constructor(private readonly cateringPlansService: CateringPlansService) { }
 
   @Post()
@@ -37,10 +36,10 @@ export class CateringPlansController {
     return this.cateringPlansService.create(dto);
   }
   @Get()
-  @ApiOperation({ summary: 'Get all meals' })
-  @ApiResponse({ status: 200, description: 'List of all meals.' })
+  @ApiOperation({ summary: 'Get all catering plans' })
+  @ApiResponse({ status: 200, description: 'List of all catering plans.' })
   findAll() {
-    return this.mealsService.findAll();
+    return this.cateringPlansService.findAll();
   }
 
   @Get(':id')

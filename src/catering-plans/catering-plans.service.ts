@@ -15,8 +15,9 @@ export class CateringPlansService {
   }
 
 async findAll() {
-  return this.prisma.meal.findMany({
-    include: { cateringPlan: true },
+  return this.prisma.cateringPlan.findMany({   // ✅ FIXED
+    where: { isActive: true },
+    include: { category: true, meals: true },
   });
 }
 
