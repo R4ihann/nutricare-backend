@@ -33,30 +33,12 @@ export class SubscriptionsService {
       include: { user: true, cateringPlan: true },
     });
   }
-
- async findAll(userId: number, userRole: string, page: number = 1, limit: number = 10) {
-  const skip = (page - 1) * limit;
+async findAll(userId: number, userRole: string) {
   const where = userRole === 'ADMIN' ? {} : { userId };
-
-  const [data, total] = await Promise.all([
-    this.prisma.subscription.findMany({
-      where,
-      include: { user: true, cateringPlan: true },
-      skip,
-      take: limit,
-    }),
-    this.prisma.subscription.count({ where }),
-  ]);
-
-  return {
-    data,
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
+  return this.prisma.subscription.findMany({
+    where,
+    include: { user: true, cateringPlan: true },
+  });
 }
 
   async findOne(id: number, userId: number, userRole: string) {

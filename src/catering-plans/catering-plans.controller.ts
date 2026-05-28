@@ -36,31 +36,16 @@ export class CateringPlansController {
     return this.cateringPlansService.create(dto);
   }
 
-  @Get('all')
-  @ApiOperation({ summary: 'Get ALL active catering plans (no pagination)' })
-  @ApiResponse({ status: 200, description: 'Complete list of active catering plans.' })
-  findAllNoPagination(
-    @Query('search') search?: string,
-    @Query('categoryId') categoryId?: string,
-  ) {
-    const categoryIdNum = categoryId ? parseInt(categoryId, 10) : undefined;
-    return this.cateringPlansService.findAllNoPagination(search, categoryIdNum);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get active catering plans (paginated)' })
-  @ApiResponse({ status: 200, description: 'Paginated list of active catering plans.' })
-  findAllPaginated(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('search') search?: string,
-    @Query('categoryId') categoryId?: string,
-  ) {
-    const pageNum = page ? parseInt(page, 10) : 1;
-    const limitNum = limit ? parseInt(limit, 10) : 10;
-    const categoryIdNum = categoryId ? parseInt(categoryId, 10) : undefined;
-    return this.cateringPlansService.findAllPaginated(pageNum, limitNum, search, categoryIdNum);
-  }
+@Get()
+@ApiOperation({ summary: 'Get all active catering plans (searchable, filterable)' })
+@ApiResponse({ status: 200, description: 'List of all active catering plans.' })
+findAll(
+  @Query('search') search?: string,
+  @Query('categoryId') categoryId?: string,
+) {
+  const categoryIdNum = categoryId ? parseInt(categoryId, 10) : undefined;
+  return this.cateringPlansService.findAll(search, categoryIdNum);
+}
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single catering plan by ID' })

@@ -14,34 +14,11 @@ export class MealsService {
     });
   }
 
-  async findAllNoPagination() {
-    return this.prisma.meal.findMany({
-      include: { cateringPlan: true },
-    });
-  }
-
-  async findAllPaginated(page: number = 1, limit: number = 10) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
-      this.prisma.meal.findMany({
-        include: { cateringPlan: true },
-        skip,
-        take: limit,
-      }),
-      this.prisma.meal.count(),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
+async findAll() {
+  return this.prisma.meal.findMany({
+    include: { cateringPlan: true },
+  });
+}
   async findOne(id: number) {
     const meal = await this.prisma.meal.findUnique({
       where: { id },
