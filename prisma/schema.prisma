@@ -37,6 +37,8 @@ model User {
   address       String?
   createdAt     DateTime       @default(now())
   subscriptions Subscription[]
+
+  reviews Review[]
 }
 
 model Category {
@@ -59,6 +61,8 @@ model CateringPlan {
   meals         Meal[]
   subscriptions Subscription[]
   createdAt     DateTime       @default(now())
+
+  reviews Review[]
 }
 
 model Meal {
@@ -85,4 +89,17 @@ model Subscription {
   createdAt      DateTime      @default(now())
   user           User          @relation(fields: [userId], references: [id])
   cateringPlan   CateringPlan  @relation(fields: [cateringPlanId], references: [id])
+}
+
+model Review {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  cateringPlanId Int
+  rating         Int          @default(5)
+  comment        String?
+  createdAt      DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id])
+  cateringPlan   CateringPlan @relation(fields: [cateringPlanId], references: [id])
+
+  @@unique([userId, cateringPlanId]) // One review per user per plan
 }
