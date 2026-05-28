@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DONE
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(USER)
+  address       String?
+  createdAt     DateTime       @default(now())
+  subscriptions Subscription[]
+}
+
+model Category {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  description  String?
+  cateringPlans CateringPlan[]
+}
+
+model CateringPlan {
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Float
+  duration      Int
+  imageUrl      String?
+  isActive      Boolean        @default(true)
+  categoryId    Int
+  category      Category       @relation(fields: [categoryId], references: [id])
+  meals         Meal[]
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+}
+
+model Meal {
+  id            Int          @id @default(autoincrement())
+  name          String
+  calories      Float
+  protein       Float
+  carbs         Float
+  fat           Float
+  ingredients   String
+  cateringPlanId Int
+  cateringPlan  CateringPlan @relation(fields: [cateringPlanId], references: [id])
+}
+
+model Subscription {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  cateringPlanId Int
+  startDate      DateTime
+  endDate        DateTime
+  totalPrice     Float
+  orderStatus    OrderStatus   @default(PENDING)
+  paymentStatus  PaymentStatus @default(UNPAID)
+  createdAt      DateTime      @default(now())
+  user           User          @relation(fields: [userId], references: [id])
+  cateringPlan   CateringPlan  @relation(fields: [cateringPlanId], references: [id])
+}
