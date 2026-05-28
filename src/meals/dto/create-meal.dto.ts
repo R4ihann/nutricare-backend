@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsInt, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNumber, IsInt, Min, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateMealDto {
   @ApiProperty({ example: 'Grilled Chicken Salad' })
@@ -33,4 +33,9 @@ export class CreateMealDto {
   @ApiProperty({ example: 1, description: 'Catering Plan ID this meal belongs to' })
   @IsInt()
   cateringPlanId!: number;
+
+  @ApiPropertyOptional({ example: 'https://example.com/chicken-salad.jpg', description: 'Food image URL' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }

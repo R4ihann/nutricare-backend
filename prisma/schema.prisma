@@ -66,15 +66,16 @@ model CateringPlan {
 }
 
 model Meal {
-  id            Int          @id @default(autoincrement())
-  name          String
-  calories      Float
-  protein       Float
-  carbs         Float
-  fat           Float
-  ingredients   String
+  id             Int          @id @default(autoincrement())
+  name           String
+  calories       Float
+  protein        Float
+  carbs          Float
+  fat            Float
+  ingredients    String
+  imageUrl       String?      // <-- ADD THIS LINE
   cateringPlanId Int
-  cateringPlan  CateringPlan @relation(fields: [cateringPlanId], references: [id])
+  cateringPlan   CateringPlan @relation(fields: [cateringPlanId], references: [id])
 }
 
 model Subscription {
