@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
@@ -36,11 +37,16 @@ export class CategoriesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all categories' })
-  @ApiResponse({ status: 200, description: 'List of all categories with their catering plans.' })
-  findAll() {
-    return this.categoriesService.findAll();
-  }
+@ApiOperation({ summary: 'Get all categories (paginated)' })
+@ApiResponse({ status: 200, description: 'Paginated list of categories.' })
+findAll(
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+) {
+  const pageNum = page ? parseInt(page, 10) : 1;
+  const limitNum = limit ? parseInt(limit, 10) : 10;
+  return this.categoriesService.findAll(pageNum, limitNum);
+}
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single category by ID' })

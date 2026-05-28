@@ -34,14 +34,30 @@ export class SubscriptionsService {
     });
   }
 
-  async findAll(userId: number, userRole: string) {
-    // Admin sees all, user sees only their own
-    const where = userRole === 'ADMIN' ? {} : { userId };
-    return this.prisma.subscription.findMany({
+ async findAll(userId: number, userRole: string, page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  const where = userRole === 'ADMIN' ? {} : { userId };
+
+  const [data, total] = await Promise.all([
+    this.prisma.subscription.findMany({
       where,
       include: { user: true, cateringPlan: true },
-    });
-  }
+      skip,
+      take: limit,
+    }),
+    this.prisma.subscription.count({ where }),
+  ]);
+
+  return {
+    data,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
 
   async findOne(id: number, userId: number, userRole: string) {
     const subscription = await this.prisma.subscription.findUnique({

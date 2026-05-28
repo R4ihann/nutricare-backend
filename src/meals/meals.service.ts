@@ -14,11 +14,27 @@ export class MealsService {
     });
   }
 
-  async findAll() {
-    return this.prisma.meal.findMany({
+  async findAll(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    this.prisma.meal.findMany({
       include: { cateringPlan: true },
-    });
-  }
+      skip,
+      take: limit,
+    }),
+    this.prisma.meal.count(),
+  ]);
+
+  return {
+    data,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
 
   async findOne(id: number) {
     const meal = await this.prisma.meal.findUnique({

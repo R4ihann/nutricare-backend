@@ -11,11 +11,27 @@ export class CategoriesService {
     return this.prisma.category.create({ data: dto });
   }
 
-  async findAll() {
-    return this.prisma.category.findMany({
+  async findAll(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    this.prisma.category.findMany({
       include: { cateringPlans: true },
-    });
-  }
+      skip,
+      take: limit,
+    }),
+    this.prisma.category.count(),
+  ]);
+
+  return {
+    data,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
 
   async findOne(id: number) {
     const category = await this.prisma.category.findUnique({

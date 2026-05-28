@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MealsService } from './meals.service';
@@ -35,12 +36,17 @@ export class MealsController {
     return this.mealsService.create(dto);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all meals' })
-  @ApiResponse({ status: 200, description: 'List of all meals with their catering plans.' })
-  findAll() {
-    return this.mealsService.findAll();
-  }
+@Get()
+@ApiOperation({ summary: 'Get all meals (paginated)' })
+@ApiResponse({ status: 200, description: 'Paginated list of meals.' })
+findAll(
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+) {
+  const pageNum = page ? parseInt(page, 10) : 1;
+  const limitNum = limit ? parseInt(limit, 10) : 10;
+  return this.mealsService.findAll(pageNum, limitNum);
+}
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single meal by ID' })

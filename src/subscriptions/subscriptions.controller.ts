@@ -9,6 +9,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SubscriptionsService } from './subscriptions.service';
@@ -35,15 +36,21 @@ export class SubscriptionsController {
     return this.subscriptionsService.create(dto, req.user.id);
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get subscriptions (User: own only, Admin: all)' })
-  @ApiResponse({ status: 200, description: 'List of subscriptions based on role.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  findAll(@Request() req: any) {
-    return this.subscriptionsService.findAll(req.user.id, req.user.role);
-  }
+@Get()
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@ApiOperation({ summary: 'Get subscriptions (User: own only, Admin: all, paginated)' })
+@ApiResponse({ status: 200, description: 'Paginated list of subscriptions based on role.' })
+@ApiResponse({ status: 401, description: 'Unauthorized.' })
+findAll(
+  @Request() req: any,
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+) {
+  const pageNum = page ? parseInt(page, 10) : 1;
+  const limitNum = limit ? parseInt(limit, 10) : 10;
+  return this.subscriptionsService.findAll(req.user.id, req.user.role, pageNum, limitNum);
+}
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
