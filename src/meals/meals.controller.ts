@@ -9,7 +9,7 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MealsService } from './meals.service';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { UpdateMealDto } from './dto/update-meal.dto';
@@ -27,16 +27,26 @@ export class MealsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new meal (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Meal successfully created.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   create(@Body() dto: CreateMealDto) {
     return this.mealsService.create(dto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all meals' })
+  @ApiResponse({ status: 200, description: 'List of all meals with their catering plans.' })
   findAll() {
     return this.mealsService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single meal by ID' })
+  @ApiParam({ name: 'id', description: 'Meal ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Meal found.' })
+  @ApiResponse({ status: 404, description: 'Meal not found.' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.mealsService.findOne(id);
   }
@@ -45,6 +55,12 @@ export class MealsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a meal (Admin only)' })
+  @ApiParam({ name: 'id', description: 'Meal ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Meal successfully updated.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Meal not found.' })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateMealDto) {
     return this.mealsService.update(id, dto);
   }
@@ -53,6 +69,12 @@ export class MealsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a meal (Admin only)' })
+  @ApiParam({ name: 'id', description: 'Meal ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Meal successfully deleted.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Meal not found.' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.mealsService.remove(id);
   }

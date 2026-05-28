@@ -9,7 +9,7 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -27,16 +27,26 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new category (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Category successfully created.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - JWT token missing or invalid.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   create(@Body() dto: CreateCategoryDto) {
     return this.categoriesService.create(dto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all categories' })
+  @ApiResponse({ status: 200, description: 'List of all categories with their catering plans.' })
   findAll() {
     return this.categoriesService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single category by ID' })
+  @ApiParam({ name: 'id', description: 'Category ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Category found.' })
+  @ApiResponse({ status: 404, description: 'Category not found.' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.categoriesService.findOne(id);
   }
@@ -45,6 +55,12 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a category (Admin only)' })
+  @ApiParam({ name: 'id', description: 'Category ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Category successfully updated.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Category not found.' })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateCategoryDto) {
     return this.categoriesService.update(id, dto);
   }
@@ -53,6 +69,12 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a category (Admin only)' })
+  @ApiParam({ name: 'id', description: 'Category ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Category successfully deleted.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Category not found.' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.categoriesService.remove(id);
   }
