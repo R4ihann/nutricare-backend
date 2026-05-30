@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { UpdateMealDto } from './dto/update-meal.dto';
@@ -8,17 +8,30 @@ export class MealsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateMealDto) {
+    const plan = await this.prisma.cateringPlan.findUnique({
+      where: { id: dto.cateringPlanId },
+    });
+    
+    if (!plan) {
+      throw new NotFoundException(`Catering plan #${dto.cateringPlanId} not found`);
+    }
+    
+    if (!plan.isActive) {
+      throw new BadRequestException(`Catering plan #${dto.cateringPlanId} is inactive`);
+    }
+
     return this.prisma.meal.create({
       data: dto,
       include: { cateringPlan: true },
     });
   }
 
-async findAll() {
-  return this.prisma.meal.findMany({
-    include: { cateringPlan: true },
-  });
-}
+  async findAll() {
+    return this.prisma.meal.findMany({
+      include: { cateringPlan: true },
+    });
+  }
+
   async findOne(id: number) {
     const meal = await this.prisma.meal.findUnique({
       where: { id },
