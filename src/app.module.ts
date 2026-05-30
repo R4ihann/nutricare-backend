@@ -8,7 +8,7 @@ import { CateringPlansModule } from './catering-plans/catering-plans.module';
 import { MealsModule } from './meals/meals.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { ConfigModule } from '@nestjs/config';
-import { ReviewsModule } from './reviews/reviews.module';
+
 import { UsersModule } from './users/users.module';
 import { LocationsModule } from './locations/locations.module';
 import { UploadModule } from './upload/upload.module';
@@ -22,7 +22,6 @@ import { UploadModule } from './upload/upload.module';
     CateringPlansModule,
     MealsModule,
     SubscriptionsModule,
-    ReviewsModule,
     UsersModule,
     LocationsModule,
     UploadModule,
