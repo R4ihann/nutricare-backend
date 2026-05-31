@@ -8,18 +8,26 @@ export class CateringPlansService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateCateringPlanDto) {
+    // NEW: Validate category exists
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
+    });
+    if (!category) {
+      throw new NotFoundException(`Category #${dto.categoryId} not found`);
+    }
+
     return this.prisma.cateringPlan.create({
       data: dto,
       include: { category: true, meals: true },
     });
   }
 
-async findAll() {
-  return this.prisma.cateringPlan.findMany({   // ✅ FIXED
-    where: { isActive: true },
-    include: { category: true, meals: true },
-  });
-}
+  async findAll() {
+    return this.prisma.cateringPlan.findMany({
+      where: { isActive: true },
+      include: { category: true, meals: true },
+    });
+  }
 
   async findOne(id: number) {
     const plan = await this.prisma.cateringPlan.findUnique({
