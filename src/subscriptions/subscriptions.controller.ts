@@ -28,6 +28,9 @@ export class SubscriptionsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new subscription' })
+  @ApiResponse({ status: 201, description: 'Subscription successfully created.' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Invalid plan or duration.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   create(@Body() dto: CreateSubscriptionDto, @Request() req: any) {
     return this.subscriptionsService.create(dto, req.user.id);
   }
@@ -36,6 +39,8 @@ export class SubscriptionsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get subscriptions (User: own only, Admin: all)' })
+  @ApiResponse({ status: 200, description: 'List of subscriptions.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   findAll(@Request() req: any) {
     return this.subscriptionsService.findAll(req.user.id, req.user.role);
   }
@@ -45,6 +50,9 @@ export class SubscriptionsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a single subscription by ID' })
   @ApiParam({ name: 'id', description: 'Subscription ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Subscription found.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 404, description: 'Subscription not found.' })
   findOne(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
     return this.subscriptionsService.findOne(id, req.user.id, req.user.role);
   }
@@ -55,6 +63,11 @@ export class SubscriptionsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update subscription order status (Admin only)' })
   @ApiParam({ name: 'id', description: 'Subscription ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Order status updated.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Subscription not found.' })
   updateOrderStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateOrderStatusDto,
@@ -68,6 +81,11 @@ export class SubscriptionsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update subscription payment status (Admin only)' })
   @ApiParam({ name: 'id', description: 'Subscription ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Payment status updated.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Subscription not found.' })
   updatePaymentStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdatePaymentStatusDto,
@@ -81,6 +99,10 @@ export class SubscriptionsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a subscription (Admin only)' })
   @ApiParam({ name: 'id', description: 'Subscription ID', example: 1 })
+  @ApiResponse({ status: 200, description: 'Subscription successfully deleted.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Subscription not found.' })
   remove(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
     return this.subscriptionsService.remove(id, req.user.id, req.user.role);
   }

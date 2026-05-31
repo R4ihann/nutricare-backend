@@ -1,6 +1,6 @@
 import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UploadService } from './upload.service';
 
 @ApiTags('Upload')
@@ -26,7 +26,7 @@ export class UploadController {
   @ApiResponse({ status: 201, description: 'Image uploaded successfully.', schema: {
     example: { imageUrl: 'https://res.cloudinary.com/.../image.jpg', publicId: 'nutricare/abc123' }
   }})
-  @ApiResponse({ status: 400, description: 'Bad Request - No file provided.' })
+  @ApiResponse({ status: 400, description: 'Bad Request - No file provided or invalid file type.' })
   async uploadImage(@UploadedFile() file: any) {
     return this.uploadService.uploadImage(file);
   }

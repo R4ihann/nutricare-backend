@@ -18,6 +18,7 @@ export class LocationsController {
   @ApiOperation({ summary: 'Get all cities in a province' })
   @ApiParam({ name: 'id', description: 'Province ID', example: 1 })
   @ApiResponse({ status: 200, description: 'List of cities in the province.' })
+  @ApiResponse({ status: 404, description: 'Province not found.' })
   findCitiesByProvince(@Param('id', ParseIntPipe) id: number) {
     return this.locationsService.findCitiesByProvince(id);
   }
