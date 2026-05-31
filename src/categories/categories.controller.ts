@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -22,7 +11,6 @@ import { Role } from '@prisma/client';
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
-  cateringPlansService: any;
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
@@ -31,18 +19,19 @@ export class CategoriesController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new category (Admin only)' })
   @ApiResponse({ status: 201, description: 'Category successfully created.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized - JWT token missing or invalid.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   create(@Body() dto: CreateCategoryDto) {
     return this.categoriesService.create(dto);
   }
 
-@Get()
-@ApiOperation({ summary: 'Get all categories' })
-@ApiResponse({ status: 200, description: 'List of all categories.' })
-findAll() {
-  return this.categoriesService.findAll();
-}
+  @Get()
+  @ApiOperation({ summary: 'Get all categories' })
+  @ApiResponse({ status: 200, description: 'List of all categories.' })
+  findAll() {
+    return this.categoriesService.findAll();
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single category by ID' })
@@ -60,6 +49,7 @@ findAll() {
   @ApiOperation({ summary: 'Update a category (Admin only)' })
   @ApiParam({ name: 'id', description: 'Category ID', example: 1 })
   @ApiResponse({ status: 200, description: 'Category successfully updated.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   @ApiResponse({ status: 404, description: 'Category not found.' })

@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CateringPlansService } from './catering-plans.service';
 import { CreateCateringPlanDto } from './dto/create-catering-plan.dto';
@@ -22,7 +11,7 @@ import { Role } from '@prisma/client';
 @ApiTags('Catering Plans')
 @Controller('catering-plans')
 export class CateringPlansController {
-  constructor(private readonly cateringPlansService: CateringPlansService) { }
+  constructor(private readonly cateringPlansService: CateringPlansService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,14 +19,16 @@ export class CateringPlansController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new catering plan (Admin only)' })
   @ApiResponse({ status: 201, description: 'Catering plan successfully created.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   create(@Body() dto: CreateCateringPlanDto) {
     return this.cateringPlansService.create(dto);
   }
+
   @Get()
-  @ApiOperation({ summary: 'Get all catering plans' })
-  @ApiResponse({ status: 200, description: 'List of all catering plans.' })
+  @ApiOperation({ summary: 'Get all active catering plans' })
+  @ApiResponse({ status: 200, description: 'List of all active catering plans.' })
   findAll() {
     return this.cateringPlansService.findAll();
   }
@@ -58,6 +49,7 @@ export class CateringPlansController {
   @ApiOperation({ summary: 'Update a catering plan (Admin only)' })
   @ApiParam({ name: 'id', description: 'Catering Plan ID', example: 1 })
   @ApiResponse({ status: 200, description: 'Catering plan successfully updated.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   @ApiResponse({ status: 404, description: 'Catering plan not found.' })

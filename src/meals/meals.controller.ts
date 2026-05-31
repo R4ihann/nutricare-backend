@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MealsService } from './meals.service';
 import { CreateMealDto } from './dto/create-meal.dto';
@@ -30,18 +19,20 @@ export class MealsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new meal (Admin only)' })
   @ApiResponse({ status: 201, description: 'Meal successfully created.' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Invalid data or inactive plan.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
+  @ApiResponse({ status: 404, description: 'Catering plan not found.' })
   create(@Body() dto: CreateMealDto) {
     return this.mealsService.create(dto);
   }
 
-@Get()
-@ApiOperation({ summary: 'Get all meals' })
-@ApiResponse({ status: 200, description: 'List of all meals.' })
-findAll() {
-  return this.mealsService.findAll();
-}
+  @Get()
+  @ApiOperation({ summary: 'Get all meals' })
+  @ApiResponse({ status: 200, description: 'List of all meals.' })
+  findAll() {
+    return this.mealsService.findAll();
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single meal by ID' })
@@ -59,6 +50,7 @@ findAll() {
   @ApiOperation({ summary: 'Update a meal (Admin only)' })
   @ApiParam({ name: 'id', description: 'Meal ID', example: 1 })
   @ApiResponse({ status: 200, description: 'Meal successfully updated.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   @ApiResponse({ status: 404, description: 'Meal not found.' })
