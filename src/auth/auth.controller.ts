@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-  import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -28,12 +28,12 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current logged-in user' })
   @ApiResponse({ status: 200, description: 'Current user info.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  getMe(@Request() req: any) {
-    const { password, ...user } = req.user;
-    return user;
+  async getMe(@Request() req: any) {
+    return this.authService.getMe(req.user.id);
   }
 
   @Patch('change-password')
