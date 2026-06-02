@@ -67,6 +67,7 @@ export class CateringPlansController {
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required.' })
   @ApiResponse({ status: 404, description: 'Catering plan not found.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.cateringPlansService.remove(id);
   }
