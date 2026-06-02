@@ -15,10 +15,10 @@ export class SubscriptionsService {
 
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + plan.duration);  // Use plan's duration!
+    endDate.setDate(endDate.getDate() + plan.duration);
 
-    const rawPrice = (plan.duration / 7) * plan.price;
-    const totalPrice = Math.ceil(rawPrice / 1000) * 1000;
+    // Harga langsung dari plan, nggak perlu dihitung
+    const totalPrice = plan.price;
 
     return this.prisma.subscription.create({
       data: {
