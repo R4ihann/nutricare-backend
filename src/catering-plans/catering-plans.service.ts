@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCateringPlanDto } from './dto/create-catering-plan.dto';
 import { UpdateCateringPlanDto } from './dto/update-catering-plan.dto';
 
 @Injectable()
 export class CateringPlansService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(dto: CreateCateringPlanDto) {
     // NEW: Validate category exists
@@ -48,7 +48,18 @@ export class CateringPlansService {
   }
 
   async remove(id: number) {
-    await this.findOne(id);
+      await this.findOne(id);
+
+    // NEW: Check if any meals are linked to this plan
+    const mealsCount = await this.prisma.meal.count({
+      where: { cateringPlanId: id },
+    });
+    if (mealsCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete plan — ${mealsCount} meal(s) still linked to it`
+      );
+    }
+
     return this.prisma.cateringPlan.delete({ where: { id } });
   }
 }
