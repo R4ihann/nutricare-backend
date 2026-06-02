@@ -5,7 +5,7 @@ import { OrderStatus, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(dto: CreateSubscriptionDto, userId: number) {
     const plan = await this.prisma.cateringPlan.findUnique({
@@ -15,9 +15,9 @@ export class SubscriptionsService {
 
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + dto.durationDays);
+    endDate.setDate(endDate.getDate() + plan.duration);  // Use plan's duration!
 
-    const rawPrice = (dto.durationDays / 7) * plan.price;
+    const rawPrice = (plan.duration / 7) * plan.price;
     const totalPrice = Math.ceil(rawPrice / 1000) * 1000;
 
     return this.prisma.subscription.create({

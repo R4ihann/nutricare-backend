@@ -22,14 +22,14 @@ import { Role } from '@prisma/client';
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
 export class SubscriptionsController {
-  constructor(private readonly subscriptionsService: SubscriptionsService) {}
+  constructor(private readonly subscriptionsService: SubscriptionsService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new subscription' })
   @ApiResponse({ status: 201, description: 'Subscription successfully created.' })
-  @ApiResponse({ status: 400, description: 'Bad Request - Invalid plan or duration.' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Invalid plan.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   create(@Body() dto: CreateSubscriptionDto, @Request() req: any) {
     return this.subscriptionsService.create(dto, req.user.id);
