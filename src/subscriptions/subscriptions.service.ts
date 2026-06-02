@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
+import { Parser } from 'json2csv';
+
 
 @Injectable()
 export class SubscriptionsService {
@@ -13,11 +15,27 @@ export class SubscriptionsService {
     });
     if (!plan) throw new NotFoundException('Catering plan not found');
 
+    // NEW: Check for existing active subscription to this plan
+    const existingSubscription = await this.prisma.subscription.findFirst({
+      where: {
+        userId,
+        cateringPlanId: dto.cateringPlanId,
+        orderStatus: {
+          not: 'DONE', // not completed yet
+        },
+      },
+    });
+
+    if (existingSubscription) {
+      throw new BadRequestException(
+        'You already have an active subscription to this plan'
+      );
+    }
+
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + plan.duration);
 
-    // Harga langsung dari plan, nggak perlu dihitung
     const totalPrice = plan.price;
 
     return this.prisma.subscription.create({
@@ -30,7 +48,12 @@ export class SubscriptionsService {
         orderStatus: 'PENDING',
         paymentStatus: 'UNPAID',
       },
-      include: { user: true, cateringPlan: true },
+      include: {
+        user: {
+          select: { id: true, email: true, role: true },
+        },
+        cateringPlan: true,
+      },
     });
   }
 
@@ -81,5 +104,39 @@ export class SubscriptionsService {
   async remove(id: number, userId: number, userRole: string) {
     await this.findOne(id, userId, userRole);
     return this.prisma.subscription.delete({ where: { id } });
+  }
+
+  async exportSubscriptions() {
+    const subscriptions = await this.prisma.subscription.findMany({
+      include: {
+        user: {
+          select: { id: true, email: true, name: true },
+        },
+        cateringPlan: {
+          include: { category: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const fields = [
+      { label: 'ID', value: 'id' },
+      { label: 'Customer Email', value: 'user.email' },
+      { label: 'Customer Name', value: 'user.name' },
+      { label: 'Plan Name', value: 'cateringPlan.name' },
+      { label: 'Category', value: 'cateringPlan.category.name' },
+      { label: 'Duration (Days)', value: 'cateringPlan.duration' },
+      { label: 'Total Price', value: 'totalPrice' },
+      { label: 'Order Status', value: 'orderStatus' },
+      { label: 'Payment Status', value: 'paymentStatus' },
+      { label: 'Start Date', value: 'startDate' },
+      { label: 'End Date', value: 'endDate' },
+      { label: 'Created At', value: 'createdAt' },
+    ];
+
+    const json2csv = new Parser({ fields });
+    const csv = json2csv.parse(subscriptions);
+
+    return csv;
   }
 }

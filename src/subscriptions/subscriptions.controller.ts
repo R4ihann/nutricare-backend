@@ -18,6 +18,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/guards/roles.decorator';
 import { Role } from '@prisma/client';
+import express from 'express';
+import { Res } from '@nestjs/common';
 
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
@@ -55,6 +57,22 @@ export class SubscriptionsController {
   @ApiResponse({ status: 404, description: 'Subscription not found.' })
   findOne(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
     return this.subscriptionsService.findOne(id, req.user.id, req.user.role);
+  }
+
+  @Get('export')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Export all subscriptions as CSV (Admin only)' })
+  @ApiResponse({ status: 200, description: 'CSV file download' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  async exportSubscriptions(@Res() res: express.Response) {
+    const csv = await this.subscriptionsService.exportSubscriptions();
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=subscriptions.csv');
+    res.send(csv);
   }
 
   @Patch(':id/status')
