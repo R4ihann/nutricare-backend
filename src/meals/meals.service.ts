@@ -5,17 +5,17 @@ import { UpdateMealDto } from './dto/update-meal.dto';
 
 @Injectable()
 export class MealsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(dto: CreateMealDto) {
     const plan = await this.prisma.cateringPlan.findUnique({
       where: { id: dto.cateringPlanId },
     });
-    
+
     if (!plan) {
       throw new NotFoundException(`Catering plan #${dto.cateringPlanId} not found`);
     }
-    
+
     if (!plan.isActive) {
       throw new BadRequestException(`Catering plan #${dto.cateringPlanId} is inactive`);
     }
@@ -30,6 +30,31 @@ export class MealsService {
     return this.prisma.meal.findMany({
       include: { cateringPlan: true },
     });
+  }
+
+  async findAllPaginated(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.meal.findMany({
+        skip,
+        take: limit,
+        include: { cateringPlan: true },
+      }),
+      this.prisma.meal.count(),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    };
   }
 
   async findOne(id: number) {

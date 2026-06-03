@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MealsService } from './meals.service';
 import { CreateMealDto } from './dto/create-meal.dto';
@@ -7,11 +7,12 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/guards/roles.decorator';
 import { Role } from '@prisma/client';
+import { PaginationDto } from './dto/pagination.dto';
 
 @ApiTags('Meals')
 @Controller('meals')
 export class MealsController {
-  constructor(private readonly mealsService: MealsService) {}
+  constructor(private readonly mealsService: MealsService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -32,6 +33,14 @@ export class MealsController {
   @ApiResponse({ status: 200, description: 'List of all meals.' })
   findAll() {
     return this.mealsService.findAll();
+  }
+
+  // NEW: Paginated endpoint
+  @Get('paginated')
+  @ApiOperation({ summary: 'Get meals with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated meals list' })
+  findAllPaginated(@Query() query: PaginationDto) {
+    return this.mealsService.findAllPaginated(query.page, query.limit);
   }
 
   @Get(':id')
